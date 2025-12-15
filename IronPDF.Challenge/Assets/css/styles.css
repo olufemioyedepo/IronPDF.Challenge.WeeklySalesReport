@@ -1,0 +1,101 @@
+﻿body {
+    font-family: system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial
+}
+
+.report {
+    max-width: 900px;
+    margin: 24px auto;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.accent {
+    color: #d35400
+}
+
+.small-muted {
+    color: #6c757d;
+    font-size: .9rem
+}
+
+.metric-name {
+    width: 45%
+}
+
+.change-positive {
+    background: #dff7ef;
+    color: #067d5b;
+    padding: .35rem .6rem;
+    border-radius: .5rem
+}
+
+.change-negative {
+    background: #fdecea;
+    color: #b02a37;
+    padding: .35rem .6rem;
+    border-radius: .5rem
+}
+
+.chart-bar {
+    height: 16px;
+    border-radius: 4px
+}
+
+.circle-stat {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(3,124,113,0.06);
+    font-weight: 600
+}
+
+.key-highlight-chart-section {
+    padding-top: 5px;
+    gap: 1rem
+}
+
+.divider-v {
+    width: 1px;
+    background: #ececec
+}
+
+.footer {
+    font-size: .85rem;
+    color: #6c757d
+}
+
+@media (max-width:767px) {
+    .metric-name {
+        width: 100%
+    }
+}
+
+#chartContainer {
+    width: 800px;
+    margin: 40px auto;
+}
+
+.chart-wrapper {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Horizontally center */
+    justify-content: center; /* Vertically center */
+    max-width: 140px
+}
+
+.canvas2 {
+    width: 100px !important;
+    height: 100px !important;
+}
+
+.label {
+    margin-top: 8px;
+    font-size: 10px;
+    color: #333;
+    font-weight: bold;
+}

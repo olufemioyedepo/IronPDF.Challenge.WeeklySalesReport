@@ -1,0 +1,305 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Weekly Financial Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="../css/styles.css" rel="stylesheet" />
+    <style type="text/css">
+        body {
+            font-family: system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial
+        }
+
+        .report {
+            max-width: 900px;
+            margin: 24px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .accent {
+            color: #d35400
+        }
+
+        .small-muted {
+            color: #6c757d;
+            font-size: .9rem
+        }
+
+        .metric-name {
+            width: 45%
+        }
+
+        .change-positive {
+            background: #dff7ef;
+            color: #067d5b;
+            padding: .35rem .6rem;
+            border-radius: .5rem
+        }
+
+        .change-negative {
+            background: #fdecea;
+            color: #b02a37;
+            padding: .35rem .6rem;
+            border-radius: .5rem
+        }
+
+        .chart-bar {
+            height: 16px;
+            border-radius: 4px
+        }
+
+        .circle-stat {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(3,124,113,0.06);
+            font-weight: 600;
+            font-family: Tahoma
+        }
+
+        .key-highlight-chart-section {
+            padding-top: 5px;
+            gap: 1rem
+        }
+
+        .divider-v {
+            width: 1px;
+            background: #ececec
+        }
+
+        .footer {
+            font-size: .85rem;
+            color: #6c757d
+        }
+
+        @media (max-width:767px) {
+            .metric-name {
+                width: 100%
+            }
+        }
+
+        #chartContainer {
+            width: 800px;
+            margin: 40px auto;
+        }
+
+        .chart-wrapper {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Horizontally center */
+            justify-content: center; /* Vertically center */
+            max-width: 140px
+        }
+
+        .canvas2 {
+            width: 100px !important;
+            height: 100px !important;
+        }
+
+        .label {
+            margin-top: 8px;
+            font-size: 10px;
+            color: #333;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="report">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="mt-3">
+                <h1 class="mb-0">Weekly Financial Report</h1>
+                <div class="small-muted">Date covered: <strong>@dateCovered</strong></div>
+            </div>
+            <div class="text-end">
+                @companyLogo
+            </div>
+        </div>
+
+        <!-- Key Metrics Summary -->
+        <h5 class="mt-2">Key Metrics Summary</h5>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 300px" class="metric-name">Metric</th>
+                        <th>This Week ($)</th>
+                        <th>Last Week ($)</th>
+                        <th>% Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @WeeklySummaryTableData
+                </tbody>
+            </table>
+        </div>
+
+        <div id="chartContainer">
+            <canvas id="financeChart"></canvas>
+        </div>
+
+        <hr>
+
+        <div class="row">
+            <div class="col-6 border-end">
+                <h6>Key Highlights</h6>
+                <div class="d-flex key-highlight-chart-section align-items-center">
+                    <div class="text-center">
+                        <div class="chart-wrapper">
+                            <canvas class="canvas2" id="doughnut-chart1"></canvas>
+                            <div class="label">Increase<br>in revenue</div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="chart-wrapper">
+                            <canvas class="canvas2" id="doughnut-chart2"></canvas>
+                            <div class="label">Reduction in<br> operating expenses</div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="chart-wrapper">
+                            <canvas class="canvas2" id="doughnut-chart3"></canvas>
+                            <div class="label">Net profit<br>growth</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6" style="padding-left: 18px">
+                <h6>Challenges</h6>
+                @ChallengesSectionText
+            </div>
+            <p id="status" style="color: red"></p>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        const ctx = document.getElementById("financeChart");
+        let doughtnutChartData1 = {};
+        let doughtnutChartData2 = {};
+        let doughtnutChartData3 = {};
+
+        // Plugin to draw text in the center
+        const centerTextPlugin = {
+            id: 'centerText',
+            afterDraw(chart) {
+                const ctx = chart.ctx;
+                const centerX = chart.chartArea.left + (chart.chartArea.width / 2);
+                const centerY = chart.chartArea.top + (chart.chartArea.height / 2);
+
+                ctx.save();
+                ctx.font = 'bold 26px Arial';
+                ctx.fillStyle = '#000';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const text = chart.config.data.datasets[0].label;
+                ctx.fillText(text, centerX, centerY);
+                ctx.restore();
+            }
+        };
+
+        const commonOptions = {
+            cutout: '90%',
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false },
+            },
+            animation: {
+                animateRotate: true
+            }
+        };
+
+        // weekly sales metric bar chart data
+        new Chart(ctx, {
+            type: "bar",
+            data: @ChartData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                    }
+                }
+            }
+        });
+
+        // Calls the doughnuut chart data endpoint, it returns json data needed to render/draw the 3 doughnut charts
+        // You can 
+        async function loadData() {
+            try {
+                const doughnutChartDataResponse = await fetch('https://localhost:7190/api/ironpdfchallenge/doughnut-chart-data');
+                const doughnutChartDataJson = await doughnutChartDataResponse.json();
+                const chartData = doughnutChartDataJson.doughnutChartData;
+
+                doughtnutChartData1 = chartData[0];
+                doughtnutChartData2 = chartData[1];
+                doughtnutChartData3 = chartData[2];
+
+                new Chart(document.getElementById('doughnut-chart1'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [doughtnutChartData1.datasets]
+                    },
+                    options: commonOptions,
+                    plugins: [centerTextPlugin]
+                });
+
+                // Doughnut Chart 2 
+                new Chart(document.getElementById('doughnut-chart2'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [doughtnutChartData2.datasets]
+                    },
+                    options: commonOptions,
+                    plugins: [centerTextPlugin]
+                });
+
+                // Doughnut Chart 3
+                new Chart(document.getElementById('doughnut-chart3'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [doughtnutChartData3.datasets]
+                    },
+                    options: commonOptions,
+                    plugins: [centerTextPlugin]
+                });
+
+                //document.getElementById('status').textContent = JSON.stringify(doughnutChartDataJson);
+
+                // When your JS is finished and DOM is ready for PDF, notify IronPdf:
+                if (window.ironpdf && typeof window.ironpdf.notifyRender === 'function') {
+                    // this tells IronPdf it can render now
+                    window.ironpdf.notifyRender();
+                } else {
+                    // fallback: if IronPdf doesn't exist, no-op (useful for local browser debug)
+                    document.getElementById('status').textContent = 'ironpdf.notifyRender not available';
+                }
+            } catch (err) {
+                document.getElementById('status').textContent = 'Error: ' + err;
+                if (window.ironpdf && typeof window.ironpdf.notifyRender === 'function') {
+                    window.ironpdf.notifyRender(); // still let renderer continue
+                }
+            }
+        }
+
+        loadData();
+
+        
+    </script>
+</body>
+</html>

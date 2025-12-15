@@ -1,0 +1,6 @@
+@IronPDF.Challenge_HostAddress = http://localhost:5178
+
+GET {{IronPDF.Challenge_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
