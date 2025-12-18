@@ -11,7 +11,7 @@ namespace IronPDF.Challenge.Controllers
     {
         [HttpGet]
         [Route("weekly-report")]
-        public ActionResult GenerateTestPdf()
+        public ActionResult GenerateWeeklyReportdf()
         {
             var pdfReportInfo = PdfChallengeService.GenerateWeeklyReportdf();
 
